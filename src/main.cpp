@@ -9,7 +9,7 @@ using std::string;
 
 int main(int argc, char const *argv[]) {
     int m, n, k, N;
-    cin >> m, n, k, N;
+    cin >> m >> n >> k >> N;
     DataBase base(m, n, k);
     string operation;
     int key, value;
@@ -42,6 +42,9 @@ int main(int argc, char const *argv[]) {
             }
         }
         if (operation == "GetNode") {
+            int node_id;
+            cin >> node_id;
+            base.show_store(node_id);
             
         }
     }

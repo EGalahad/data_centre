@@ -1,5 +1,7 @@
 #pragma once
-#include "Node.h"
+#include "ComputeNode.h"
+#include "StoreNode.h"
+#include "LinkedList.h"
 
 class DataBase {
    public:
@@ -19,9 +21,9 @@ class DataBase {
     int com_node, sto_node;
     int cache_size;
     
-    // use computers[cur++] to do the operation
-    int cur = 0;
     ComputeNode** computers;
+    LinkedList* lst;
+
     StoreNode** disks;
 
     void UpdateCache(int key, int value);
