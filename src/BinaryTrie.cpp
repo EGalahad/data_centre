@@ -1,51 +1,38 @@
 #include "BinaryTrie.h"
 
-BinaryTrieNode::BinaryTrieNode(bool key /* = 0 */, DataNode* data /* = nullptr */) : key(key), data(data) {
+BinaryTrieNode::BinaryTrieNode(int id, bool key /* = 0 */, DataNode* data /* = nullptr */)
+    : id(id), key(key), data(data) {
     for (int i = 0; i < 2; i++) {
         child[i] = nullptr;
     }
 }
 
-BinaryTrie::BinaryTrie(DataNode* data_list, int initial_size) {
-    #ifdef DEBUG
+BinaryTrie::BinaryTrie(DataNode** data_list, int initial_size) {
+#ifdef DEBUG
     cout << "constructing binary trie" << endl;
-    #endif // DEBUG
-    trie_list = new BinaryTrieNode[trie_capacity];
+#endif  // DEBUG
+    trie_list = new BinaryTrieNode*[trie_capacity /* = 1 */];
     // use first node in list as the root, whose key does not matter
-    trie_root = &trie_list[0];
-    trie_list[0].id = 0;
+    trie_list[0] = new BinaryTrieNode(0);
+    trie_root = trie_list[0];
     for (int i = 0; i < initial_size; i++) {
-        trie_append(data_list + i);
+        trie_append(data_list[i]);
     }
 }
 
 BinaryTrieNode* BinaryTrie::trie_list_append(bool key, DataNode* data) {
     if (trie_size == trie_capacity) {
         trie_capacity <<= 1;
-        BinaryTrieNode* new_trie = new BinaryTrieNode[trie_capacity];
+        BinaryTrieNode** new_trie_list = new BinaryTrieNode*[trie_capacity];
         for (int i = 0; i < trie_size; i++) {
-            new_trie[i] = trie_list[i];
-        }
-        for (int i = 0; i < trie_capacity; i++) {
-            new_trie[i].id = i;
+            new_trie_list[i] = trie_list[i];
         }
         delete[] trie_list;
-        trie_list = new_trie;
+        trie_list = new_trie_list;
     }
-    trie_list[trie_size].key = key;
-    trie_list[trie_size].data = data;
-    return trie_list + trie_size++;
+    trie_list[trie_size] = new BinaryTrieNode(trie_size, key, data);
+    return trie_list[trie_size++];
 }
-
-// // return 0 iff key >> pos == 0
-// inline bool at(int n, int pos, bool& k) {
-//     if (n >> pos == 0) {
-//         k = (n >> (pos - 1));
-//         return 0;
-//     }
-//     k = (n >> pos) & 1;
-//     return 1;
-// }
 
 bool BinaryTrie::trie_append(DataNode* data) {
     BinaryTrieNode* cur = trie_root;
@@ -66,7 +53,7 @@ bool BinaryTrie::trie_append(DataNode* data) {
     return 1;
 }
 
-bool BinaryTrie::insert(DataNode* node, bool use_query_result /* = 0 */ ) {
+bool BinaryTrie::insert(DataNode* node, bool use_query_result /* = 0 */) {
     if (!use_query_result) {
         return trie_append(node);
     } else {
@@ -99,18 +86,21 @@ bool BinaryTrie::operation(int key, int& value, int type) {
 }
 
 void BinaryTrie::show() {
-    cout << "Binary Search Trie" << endl;
+    cout << "Trie" << endl;
     bool* is_child0 = new bool[trie_size];
     for (int i = 0; i < trie_size; i++) {
+        is_child0[i] = 0;
+    }
+    for (int i = 0; i < trie_size; i++) {
         auto& node = trie_list[i];
-        if (node.child[0]) {
-            is_child0[node.child[0]->id] = 1;
-        } else if (node.child[1]) {
-            is_child0[node.child[1]->id] = 1;
+        if (node->child[0]) {
+            is_child0[node->child[0]->id] = 1;
+        } else if (node->child[1]) {
+            is_child0[node->child[1]->id] = 1;
         }
     }
     for (int i = 1; i < trie_size; i++) {
-        cout << trie_list[i].key;
+        cout << trie_list[i]->key;
         if (i < trie_size - 1)
             cout << " ";
         else
@@ -124,8 +114,9 @@ void BinaryTrie::show() {
             cout << endl;
         }
     }
+    delete[] is_child0;
     for (int i = 1; i < trie_size; i++) {
-        cout << (trie_list[i].data != nullptr);
+        cout << (trie_list[i]->data != nullptr);
         if (i < trie_size - 1) {
             cout << " ";
         } else {
@@ -135,5 +126,8 @@ void BinaryTrie::show() {
 }
 
 BinaryTrie::~BinaryTrie() {
+    for (int i = 0; i < trie_size; i++) {
+        delete trie_list[i];
+    }
     delete[] trie_list;
 }

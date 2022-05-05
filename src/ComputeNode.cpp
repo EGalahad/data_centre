@@ -43,9 +43,9 @@ bool ComputeNode::update_cache(int key, int value, int time_stamp) {
     return 0;
 }
 
-void ComputeNode::show(StoreNode* sto) {
-    cout << "Visiting Computing node " << id << endl;
-    sto->show();
+void ComputeNode::show(StoreNode* sto, int time_stamp) {
+    cout << "Visiting Computing node " << id << " at time " << time_stamp << endl;
+    sto->show(time_stamp);
 }
 
 /*****************************

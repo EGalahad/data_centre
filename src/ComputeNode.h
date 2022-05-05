@@ -17,7 +17,7 @@ class ComputeNode {
     bool update(int key, int& value, StoreNode* sto, int time_stamp);
     // change cache dur to dirty write
     bool update_cache(int key, int value, int time_stamp);
-    void show(StoreNode* sto);
+    void show(StoreNode* sto, int time_stamp);
 
     // node id
     int id;

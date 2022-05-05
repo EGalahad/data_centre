@@ -1,7 +1,7 @@
 #pragma once
-#include "common.h"
-#include "DataNode.h"
 #include "BinaryTrie.h"
+#include "DataNode.h"
+#include "common.h"
 
 class StoreNode {
    public:
@@ -15,7 +15,7 @@ class StoreNode {
     // if key exist, return 1, old_value stored in value
     bool update(int key, int& value, int time_stamp);
 
-    void show();
+    void show(int time_stamp);
 
    private:
     int id;
@@ -25,14 +25,24 @@ class StoreNode {
     int type = 0;
 
     int size = 0, capacity = 1;
-    DataNode* data_list;
+    DataNode** data_list;
 
     DataNode* data_list_append(int key, int value);
+
+    void transform(int depth);
+
+    /*****************
+     * array structure
+    *****************/
 
     // type: 0: insert, 1: query, 2, update
     // return 1 if key exists
     bool array_operation(int key, int& value, int type);
     void array_show();
+
+    /*****************
+     * bst structure
+    *****************/
 
     // type: 0: insert, 1: query, 2, update
     // return 1 if key exists
@@ -44,6 +54,10 @@ class StoreNode {
     void bst_init();
     void bst_append(DataNode* node);
 
+    /*****************
+     * trie structure
+    *****************/
+
     // type: 0: insert, 1: query, 2, update
     // return 1 if key exists
     bool trie_operation(int key, int& value, int type);
@@ -52,5 +66,4 @@ class StoreNode {
     BinaryTrie* trie;
     void trie_init();
 
-    void transform(int depth);
 };

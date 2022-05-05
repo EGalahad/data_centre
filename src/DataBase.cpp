@@ -54,7 +54,7 @@ int DataBase::GetNode(int store_id, int time_stamp, int id) {
     auto worker = (id == -1) ? get_min_ops() : computers[id];
     if (worker->busy || worker->time_stamp == time_stamp) return -1;
     worker->ops++, worker->time_stamp = time_stamp;
-    worker->show(disks[store_id]);
+    worker->show(disks[store_id], time_stamp);
 }
 
 /*****************************

@@ -7,3 +7,4 @@ using std::endl;
 typedef std::pair<int, int> Pair;
 
 // #define DEBUG
+// #define DEBUG_BST

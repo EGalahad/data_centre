@@ -3,13 +3,14 @@
  * public API for store node
  *****************************/
 
-StoreNode::StoreNode(int id) : id(id), data_list(new DataNode[capacity]) {
+StoreNode::StoreNode(int id) : id(id), data_list(new DataNode*[capacity]) {
 #ifdef DEBUG
     cout << "initializing list of data node possessed by store node" << endl;
 #endif  // DEBUG
-    for (int i = 0; i < capacity; i++) {
-        data_list[i].id = i;
+    for (int i = 0; i < size; i++) {
+        data_list[i] = new DataNode(i);
     }
+    trie = nullptr;
 }
 
 bool StoreNode::insert(int key, int value, int time_stamp) {
@@ -40,14 +41,19 @@ bool StoreNode::update(int key, int& value, int time_stamp) {
     return exist;
 }
 
-void StoreNode::show() {
+void StoreNode::show(int time_stamp) {
+    cout << "Visiting data node " << id << " at time " << time_stamp << endl;
     if (type == 0) array_show();
     if (type == 1) bst_show();
     if (type == 2) trie_show();
 }
 
 StoreNode::~StoreNode() {
+    for (int i = 0; i < capacity; i++) {
+        delete data_list[i];
+    }
     delete[] data_list;
+    if (trie) delete trie;
 }
 
 /*****************************
@@ -57,19 +63,15 @@ StoreNode::~StoreNode() {
 DataNode* StoreNode::data_list_append(int key, int value) {
     if (size == capacity) {
         capacity <<= 1;
-        DataNode* new_list = new DataNode[capacity];
+        DataNode** new_list = new DataNode*[capacity];
         for (int i = 0; i < size; i++) {
             new_list[i] = data_list[i];
-        }
-        for (int i = size; i < capacity; i++) {
-            new_list[i].id = i;
         }
         delete[] data_list;
         data_list = new_list;
     }
-    data_list[size].key = key;
-    data_list[size].value = value;
-    return data_list + size++;
+    data_list[size] = new DataNode(size, key, value);
+    return data_list[size++];
 }
 
 void StoreNode::transform(int depth) {
@@ -91,12 +93,12 @@ void StoreNode::transform(int depth) {
  **********************************************/
 bool StoreNode::array_operation(int key, int& value, int type) {
     for (int i = 0; i < size; i++) {
-        if (data_list[i].key == key) {
+        if (data_list[i]->key == key) {
             // if insert(type == 0), not successful, return 1
-            if (type == 1) value = data_list[i].value;
+            if (type == 1) value = data_list[i]->value;
             if (type == 2) {
-                int old_value = data_list[i].value;
-                data_list[i].value = value;
+                int old_value = data_list[i]->value;
+                data_list[i]->value = value;
                 value = old_value;
             }
             return 1;
@@ -111,7 +113,7 @@ bool StoreNode::array_operation(int key, int& value, int type) {
 void StoreNode::array_show() {
     cout << "Array" << endl;
     for (int i = 0; i < size; i++) {
-        cout << data_list[i].key;
+        cout << data_list[i]->key;
         if (i < size - 1) {
             cout << " ";
         } else {
@@ -157,17 +159,24 @@ bool StoreNode::bst_operation(int key, int& value, int type) {
 }
 
 void StoreNode::bst_init() {
-    bst_root = &data_list[0];
+    bst_root = data_list[0];
     for (int i = 1; i < size; i++) {
-        bst_append(data_list + i);
+#ifdef DEBUG_BST
+        cout << "transfroming: appending the " << i << "th datanode in datalist" << endl;
+#endif  // DEBUG_BST
+        bst_append(data_list[i]);
     }
 }
 
 void StoreNode::bst_append(DataNode* node) {
-    DataNode* cur = &data_list[0];
+    DataNode* cur = bst_root;
     int key = node->key;
     bool k = 0;
+    int depth = 0;
     while (true) {
+#ifdef DEBUG_BST
+        cout << "traversing depth: " << depth++ << endl;
+#endif  // DEBUG_BST
         k = key < cur->key;
         if (cur->child[k] == nullptr) {
             cur->child[k] = node;
@@ -180,15 +189,17 @@ void StoreNode::bst_append(DataNode* node) {
 void StoreNode::bst_show() {
     cout << "Binary Search Tree" << endl;
     bool* is_child0 = new bool[size];
+    for (int i = 0; i < size; i++) is_child0[i] = 0;
     for (int i = 0; i < size; i++) {
         auto& data = data_list[i];
-        if (data.child[0]) {
-            is_child0[data.child[0]->id] = 1;
-        } else if (data.child[1]) {
-            is_child0[data.child[1]->id] = 1;
+        if (data->child[0]) {
+            is_child0[data->child[0]->id] = 1;
+        } else if (data->child[1]) {
+            is_child0[data->child[1]->id] = 1;
         }
-
-        cout << data_list[i].key;
+    }
+    for (int i = 0; i < size; i++) {
+        cout << data_list[i]->key;
         if (i < size - 1) {
             cout << " ";
         } else {
@@ -203,9 +214,10 @@ void StoreNode::bst_show() {
             cout << endl;
         }
     }
+    delete[] is_child0;
     for (int i = 0; i < size; i++) {
         auto& node = data_list[i];
-        cout << (!node.child[0] && !node.child[1]);
+        cout << (!node->child[0] && !node->child[1]);
         if (i < size - 1) {
             cout << " ";
         } else {
