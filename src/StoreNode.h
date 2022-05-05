@@ -6,13 +6,14 @@
 class StoreNode {
    public:
     StoreNode(int id);
+    ~StoreNode();
 
     // if key exist, return 1, will not modify
-    bool insert(int key, int value);
+    bool insert(int key, int value, int time_stamp);
     // if key exist, return 1, store in value
-    bool query(int key, int& value);
+    bool query(int key, int& value, int time_stamp);
     // if key exist, return 1, old_value stored in value
-    bool update(int key, int& value);
+    bool update(int key, int& value, int time_stamp);
 
     void show();
 

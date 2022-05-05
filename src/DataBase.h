@@ -1,30 +1,29 @@
 #pragma once
 #include "ComputeNode.h"
 #include "StoreNode.h"
-#include "LinkedList.h"
 
 class DataBase {
    public:
     DataBase(int com_node, int sto_node, int cache_size);
     ~DataBase();
     // return 1 if exists
-    bool Insert(int key, int value);
+    int Insert(int key, int value, int time_stamp, int id);
     // return 1 if exists, 0 if not found
-    bool Query(int key, int& value);
+    int Query(int key, int& value, int time_stamp, int id);
     // insert if not found
     // remember to update others' cache as well
-    bool Update(int key, int& value);
+    int Update(int key, int& value, int time_stamp, int id);
     // display contents in store node
-    void show_store(int id);
+    int GetNode(int store_id, int time_stamp, int id);
 
    private:
     int com_node, sto_node;
     int cache_size;
     
     ComputeNode** computers;
-    LinkedList* lst;
+    ComputeNode* get_min_ops();
 
     StoreNode** disks;
 
-    void UpdateCache(int key, int value);
+    void UpdateCache(int key, int value, int time_stamp);
 };

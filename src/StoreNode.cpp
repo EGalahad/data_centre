@@ -5,15 +5,15 @@
 
 StoreNode::StoreNode(int id) : id(id), data_list(new DataNode[capacity]) {
 #ifdef DEBUG
-    cout << "initializing list of datanode possessed by store node" << endl;
+    cout << "initializing list of data node possessed by store node" << endl;
 #endif  // DEBUG
     for (int i = 0; i < capacity; i++) {
         data_list[i].id = i;
     }
 }
 
-bool StoreNode::insert(int key, int value) {
-    cout << "Visiting data node " << id << endl;
+bool StoreNode::insert(int key, int value, int time_stamp) {
+    cout << "Visiting data node " << id << " at time " << time_stamp << endl;
     bool exist;
     if (type == 0) exist = array_operation(key, value, 0);
     if (type == 1) exist = bst_operation(key, value, 0);
@@ -22,8 +22,8 @@ bool StoreNode::insert(int key, int value) {
     return exist;
 }
 
-bool StoreNode::query(int key, int& value) {
-    cout << "Visiting data node " << id << endl;
+bool StoreNode::query(int key, int& value, int time_stamp) {
+    cout << "Visiting data node " << id << " at time " << time_stamp << endl;
     bool exist;
     if (type == 0) exist = array_operation(key, value, 1);
     if (type == 1) exist = bst_operation(key, value, 1);
@@ -31,8 +31,8 @@ bool StoreNode::query(int key, int& value) {
     return exist;
 }
 
-bool StoreNode::update(int key, int& value) {
-    cout << "Visiting data node " << id << endl;
+bool StoreNode::update(int key, int& value, int time_stamp) {
+    cout << "Visiting data node " << id << " at time " << time_stamp << endl;
     bool exist;
     if (type == 0) exist = array_operation(key, value, 2);
     if (type == 1) exist = bst_operation(key, value, 2);
@@ -44,6 +44,10 @@ void StoreNode::show() {
     if (type == 0) array_show();
     if (type == 1) bst_show();
     if (type == 2) trie_show();
+}
+
+StoreNode::~StoreNode() {
+    delete[] data_list;
 }
 
 /*****************************

@@ -6,4 +6,4 @@ using std::endl;
 #include <utility>
 typedef std::pair<int, int> Pair;
 
-#define DEBUG
+// #define DEBUG

@@ -15,6 +15,7 @@ class BinaryTrieNode {
 class BinaryTrie {
    public:
     BinaryTrie(DataNode* data_list, int initial_size);
+    ~BinaryTrie();
     bool insert(DataNode* node, bool use_query_result = 0);
     // type 1: query 2: update
     bool operation(int key, int& value, int type);

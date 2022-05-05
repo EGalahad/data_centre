@@ -8,40 +8,35 @@ ComputeNode::ComputeNode(int id, int cache_size) : id(id), k(cache_size) {
     cout << "initializing compute node #" << id << endl;
 #endif  // DEBUG
     cache = new Pair[k];
-    rnk = new int[k];
+    cache_time = new int[k];
     for (int i = 0; i < k; i++) {
-        rnk[i] = i;
+        cache_time[i] = -1;
     }
 }
 
-bool ComputeNode::insert(int key, int value, StoreNode* sto) {
-    cout << "Visiting Computing node " << id << endl;
-    bool exist = sto->insert(key, value);
-    if (!exist) {
-        cache_insert(key, value);
-    }
+bool ComputeNode::insert(int key, int value, StoreNode* sto, int time_stamp) {
+    cout << "Visiting Computing node " << id << " at time " << time_stamp << endl;
+    bool exist = sto->insert(key, value, time_stamp);
+    if (!exist) cache_insert(key, value, time_stamp);
     return exist;
 }
 
-bool ComputeNode::query(int key, int& value, StoreNode* sto) {
-    cout << "Visiting Computing node " << id << endl;
+bool ComputeNode::query(int key, int& value, StoreNode* sto, int time_stamp) {
+    cout << "Visiting Computing node " << id << " at time " << time_stamp << endl;
     int _;
-    // if in cache
-    if (cache_query(key, value, _)) {
-        return 1;
-    }
-    return sto->query(key, value);
+    if (cache_query(key, value, _, time_stamp)) return 1;
+    return sto->query(key, value, time_stamp);
 }
 
-bool ComputeNode::update(int key, int& value, StoreNode* sto) {
-    cout << "Visiting Computing node " << id << endl;
-    return sto->update(key, value);
+bool ComputeNode::update(int key, int& value, StoreNode* sto, int time_stamp) {
+    cout << "Visiting Computing node " << id << " at time " << time_stamp << endl;
+    return sto->update(key, value, time_stamp);
 }
 
-bool ComputeNode::update_cache(int key, int value) {
-    cout << "Visiting Computing node " << id << endl;
+bool ComputeNode::update_cache(int key, int value, int time_stamp) {
+    cout << "Visiting Computing node " << id << " at time " << time_stamp << endl;
     int pos, _;
-    if (cache_query(key, _, pos)) {
+    if (cache_query(key, _, pos, time_stamp)) {
         cache[pos].second = value;
         return 1;
     }
@@ -56,40 +51,36 @@ void ComputeNode::show(StoreNode* sto) {
 /*****************************
  * private API for compute node
  *****************************/
-void ComputeNode::rank_top(int cache_id) {
-    int& old_rank = rnk[cache_id];
-    for (int i = 0; i < k; i++) {
-        rnk[i] += (rnk[i] < old_rank);
-    }
-    old_rank = 0;
-}
 
 // return 1 if exists in cache and update the rank
-bool ComputeNode::cache_query(int key, int& value, int& pos) {
+bool ComputeNode::cache_query(int key, int& value, int& pos, int time_stamp) {
     for (int i = 0; i < k; i++) {
         if (cache[i].first == key) {
             value = cache[i].second;
             pos = i;
-            rank_top(pos);
+            cache_time[i] = time_stamp;
             return 1;
         }
     }
     return 0;
 }
 
-void ComputeNode::cache_insert(int key, int value) {
+void ComputeNode::cache_insert(int key, int value, int time_stamp) {
     int pos = 0, old_value = 0;
     // if key is in cache
-    if (cache_query(key, old_value, pos)) {
+    if (cache_query(key, old_value, pos, time_stamp)) {
         cache[pos].second = value;
         return;
     }
     // find least used and insert
-    int victim_id = 0;
-    while (true) {
-        if (rnk[victim_id] == k - 1) break;
-        ++victim_id;
+    int victim_id = 0, min = 0;
+    for (int i = 0; i < k; i++) {
+        if (cache_time[i] < min) min = cache_time[i], victim_id = i;
     }
     cache[victim_id] = Pair(key, value);
-    rank_top(victim_id);
+    cache_time[victim_id] = time_stamp;
+}
+ComputeNode::~ComputeNode() {
+    delete[] cache;
+    delete[] cache_time;
 }

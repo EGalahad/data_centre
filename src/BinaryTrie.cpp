@@ -26,12 +26,14 @@ BinaryTrieNode* BinaryTrie::trie_list_append(bool key, DataNode* data) {
         for (int i = 0; i < trie_size; i++) {
             new_trie[i] = trie_list[i];
         }
+        for (int i = 0; i < trie_capacity; i++) {
+            new_trie[i].id = i;
+        }
         delete[] trie_list;
         trie_list = new_trie;
     }
     trie_list[trie_size].key = key;
     trie_list[trie_size].data = data;
-    trie_list[trie_size].id = trie_size;
     return trie_list + trie_size++;
 }
 
@@ -130,4 +132,8 @@ void BinaryTrie::show() {
             cout << endl;
         }
     }
+}
+
+BinaryTrie::~BinaryTrie() {
+    delete[] trie_list;
 }
