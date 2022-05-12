@@ -2,6 +2,7 @@
 #include "BinaryTrie.h"
 #include "DataNode.h"
 #include "common.h"
+#include <queue>
 
 class StoreNode {
    public:

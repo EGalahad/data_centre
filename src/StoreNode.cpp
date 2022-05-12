@@ -82,7 +82,7 @@ void StoreNode::transform(int depth) {
         return;
     }
     if (type == 1) {
-        if (depth < size / 16) return;
+        if (depth < size / 6) return;
         type = 2;
         trie_init();
     }
@@ -146,7 +146,7 @@ bool StoreNode::bst_operation(int key, int& value, int type) {
             }
             return 1;
         }
-        k = key < cur->key;
+        k = key > cur->key;
         if (cur->child[k] == nullptr) {
             if (type == 1) return 0;
             cur->child[k] = data_list_append(key, value);
@@ -177,7 +177,7 @@ void StoreNode::bst_append(DataNode* node) {
 #ifdef DEBUG_BST
         cout << "traversing depth: " << depth++ << endl;
 #endif  // DEBUG_BST
-        k = key < cur->key;
+        k = key > cur->key;
         if (cur->child[k] == nullptr) {
             cur->child[k] = node;
             return;
@@ -189,41 +189,41 @@ void StoreNode::bst_append(DataNode* node) {
 void StoreNode::bst_show() {
     cout << "Binary Search Tree" << endl;
     bool* is_child0 = new bool[size];
-    for (int i = 0; i < size; i++) is_child0[i] = 0;
-    for (int i = 0; i < size; i++) {
-        auto& data = data_list[i];
-        if (data->child[0]) {
-            is_child0[data->child[0]->id] = 1;
-        } else if (data->child[1]) {
-            is_child0[data->child[1]->id] = 1;
+    {
+        for (int i = 0; i < size; i++) is_child0[i] = 0;
+        for (int i = 0; i < size; i++) {
+            auto& data = data_list[i];
+            if (data->child[0]) {
+                is_child0[data->child[0]->id] = 1;
+            } else if (data->child[1]) {
+                is_child0[data->child[1]->id] = 1;
+            }
         }
     }
-    for (int i = 0; i < size; i++) {
-        cout << data_list[i]->key;
-        if (i < size - 1) {
-            cout << " ";
-        } else {
-            cout << endl;
+    // layer travese
+    DataNode** layer = new DataNode*[size];
+    {
+        int cnt = 0;
+        std::queue<DataNode*> Q;
+        Q.push(bst_root);
+        while (!Q.empty()) {
+            DataNode* top = Q.front();
+            Q.pop();
+            layer[cnt++] = top;
+            for (int i = 0; i < 2; i++) {
+                if (top->child[i]) Q.push(top->child[i]);
+            }
         }
     }
-    for (int i = 0; i < size; i++) {
-        cout << is_child0[i];
-        if (i < size - 1) {
-            cout << " ";
-        } else {
-            cout << endl;
-        }
-    }
+
+    for (int i = 0; i < size; i++) cout << layer[i]->key << " ";
+    cout << endl;
+    for (int i = 0; i < size; i++) cout << is_child0[layer[i]->id] << " ";
+    cout << endl;
+    for (int i = 0; i < size; i++) cout << !(layer[i]->child[0] || layer[i]->child[1]) << " ";
+    cout << endl;
     delete[] is_child0;
-    for (int i = 0; i < size; i++) {
-        auto& node = data_list[i];
-        cout << (!node->child[0] && !node->child[1]);
-        if (i < size - 1) {
-            cout << " ";
-        } else {
-            cout << endl;
-        }
-    }
+    delete[] layer;
 }
 
 /*****************************************

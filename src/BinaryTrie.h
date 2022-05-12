@@ -1,15 +1,18 @@
 #pragma once
 #include "common.h"
 #include "DataNode.h"
+#include <queue>
 
 // nodes in the trie, with leaf nodes pointing to the data nodes
 class BinaryTrieNode {
-   public:
-    BinaryTrieNode(int id, bool key = 0, DataNode* data = nullptr);
     bool key;
     int id;
+    int depth;
     DataNode* data;
     BinaryTrieNode* child[2];
+    friend class BinaryTrie;
+   public:
+    BinaryTrieNode(int id, bool key = 0, int depth = 0, DataNode* data = nullptr);
 };
 
 class BinaryTrie {
@@ -24,6 +27,6 @@ class BinaryTrie {
    private:
     BinaryTrieNode **trie_list, *trie_root, *query_result;
     int trie_capacity = 1, trie_size = 1;
-    BinaryTrieNode* trie_list_append(bool key, DataNode* data);
+    BinaryTrieNode* trie_list_append(bool key, int depth, DataNode* data);
     bool trie_append(DataNode* data);
 };

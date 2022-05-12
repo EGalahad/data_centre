@@ -21,7 +21,7 @@ DataBase::DataBase(int com_node, int sto_node, int cache_size)
 
 int DataBase::Insert(int key, int value, int time_stamp, int id) {
     auto worker = (id == -1) ? get_min_ops() : computers[id];
-    if (worker->busy || worker->time_stamp == time_stamp) return -1;
+    if (worker->time_stamp == time_stamp) return -1;
     worker->ops++, worker->time_stamp = time_stamp;
 #ifdef DEBUG
     cout << "ops: ";
@@ -35,24 +35,32 @@ int DataBase::Insert(int key, int value, int time_stamp, int id) {
 }
 int DataBase::Query(int key, int &value, int time_stamp, int id) {
     auto worker = (id == -1) ? get_min_ops() : computers[id];
-    if (worker->busy || worker->time_stamp == time_stamp) return -1;
+    if (worker->time_stamp == time_stamp) return -1;
     worker->ops++, worker->time_stamp = time_stamp;
     bool exist = worker->query(key, value, disks[key % sto_node], time_stamp);
     return exist;
 }
 int DataBase::Update(int key, int &value, int time_stamp, int id) {
     auto worker = (id == -1) ? get_min_ops() : computers[id];
-    if (worker->busy || worker->time_stamp == time_stamp) return -1;
+#ifdef DEBUG_UPDATE
+    if (time_stamp == 1044) {
+        for (int i = 0; i < com_node; i++) {
+            cout <<  computers[i]->ops << " ";
+        }
+        cout << endl << "[debug] chosen worker id: " << worker->id << "\tworker timestamp: " << worker->time_stamp << endl;
+    }
+#endif  // DEBUG_UPDATE
+    if (worker->time_stamp == time_stamp) return -1;
     worker->ops++, worker->time_stamp = time_stamp;
     int new_value = value;
     bool exist = worker->update(key, value, disks[key % sto_node], time_stamp);
-    if (exist) UpdateCache(key, new_value, time_stamp);
+    if (exist) BroadCast_UpdateCache(key, new_value, time_stamp);
     return exist;
 }
 
 int DataBase::GetNode(int store_id, int time_stamp, int id) {
     auto worker = (id == -1) ? get_min_ops() : computers[id];
-    if (worker->busy || worker->time_stamp == time_stamp) return -1;
+    if (worker->time_stamp == time_stamp) return -1;
     worker->ops++, worker->time_stamp = time_stamp;
     worker->show(disks[store_id], time_stamp);
 }
@@ -61,13 +69,11 @@ int DataBase::GetNode(int store_id, int time_stamp, int id) {
  * private API for database
  *****************************/
 
-void DataBase::UpdateCache(int key, int value, int time_stamp) {
+void DataBase::BroadCast_UpdateCache(int key, int value, int time_stamp) {
     for (int i = 0; i < com_node; i++) {
         auto worker = computers[com_node - 1 - i];
-        worker->busy = 1;
-        worker->update_cache(key, value, time_stamp);
-        worker->busy = 0;
-        // if (worker->update_cache(key, value)) worker->ops++;
+        bool exist = worker->update_cache(key, value, time_stamp);
+        if (exist) worker->time_stamp = time_stamp;
     }
 }
 

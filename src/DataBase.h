@@ -25,5 +25,5 @@ class DataBase {
 
     StoreNode** disks;
 
-    void UpdateCache(int key, int value, int time_stamp);
+    void BroadCast_UpdateCache(int key, int value, int time_stamp);
 };

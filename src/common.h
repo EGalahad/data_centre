@@ -8,3 +8,5 @@ typedef std::pair<int, int> Pair;
 
 // #define DEBUG
 // #define DEBUG_BST
+// #define DEBUG_TRIE_SHOW
+#define DEBUG_UPDATE

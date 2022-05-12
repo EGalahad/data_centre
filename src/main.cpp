@@ -22,7 +22,8 @@ int main(int argc, char const* argv[]) {
     int key, value, computer_id, time_stamp = 0;
     int res;
     while (N--) {
-        while (getline(cin, line), line.empty()) ;
+        while (getline(cin, line), line.empty())
+            ;
         std::stringstream X(line);
         std::getline(X, token, ' '), operation = token;
         if (operation == "Insert") {
@@ -57,6 +58,9 @@ int main(int argc, char const* argv[]) {
             if (res == -1) {
                 cout << "REJECT" << endl;
             } else if (res == 1) {
+#ifdef DEBUG_UPDATE
+                cout << "[updated] old value, new value" << endl;
+#endif  // DEBUG_UPDATE
                 cout << value << " " << new_value << endl;
             } else {
                 cout << "Successfully Inserted" << endl;

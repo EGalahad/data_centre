@@ -24,7 +24,7 @@ class ComputeNode {
     // most recent time stamp
     int time_stamp = -1;
     // is cache available
-    bool busy = 0;
+    // bool busy = 0;
     // number of operations
     int ops = 0;
 
