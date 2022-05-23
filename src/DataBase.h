@@ -1,10 +1,11 @@
 #pragma once
 #include "ComputeNode.h"
 #include "StoreNode.h"
+#include "common.h"
 
 class DataBase {
    public:
-    DataBase(int com_node, int sto_node, int cache_size);
+    DataBase(int com_node, int num_store_node, int cache_size);
     ~DataBase();
     // return 1 if exists
     int Insert(int key, int value, int time_stamp, int id);
@@ -17,13 +18,13 @@ class DataBase {
     int GetNode(int store_id, int time_stamp, int id);
 
    private:
-    int com_node, sto_node;
+    int num_compute_node, num_store_node;
     int cache_size;
-    
+
     ComputeNode** computers;
     ComputeNode* get_min_ops();
 
     StoreNode** disks;
 
-    void BroadCast_UpdateCache(int key, int value, int time_stamp);
+    void broadcast_update_cache(int key, int value, int time_stamp);
 };

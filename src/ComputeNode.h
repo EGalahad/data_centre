@@ -1,10 +1,13 @@
 #pragma once
+#include <utility>
+typedef std::pair<int, int> Pair;
+
 #include "StoreNode.h"
 #include "common.h"
 
 class ComputeNode {
    public:
-    ComputeNode(int id, int cache_size);
+    ComputeNode(int id_compute_node, int cache_size);
     ~ComputeNode();
     // when doing operation
     // insert pair to cache
@@ -19,8 +22,8 @@ class ComputeNode {
     bool update_cache(int key, int value, int time_stamp);
     void show(StoreNode* sto, int time_stamp);
 
-    // node id
-    int id;
+    // node id_compute_node
+    int id_compute_node;
     // most recent time stamp
     int time_stamp = -1;
     // is cache available

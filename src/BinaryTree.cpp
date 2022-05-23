@@ -17,9 +17,8 @@ BinaryTreeNode::BinaryTreeNode(DataNode* data)
 BinaryTree::BinaryTree(DataNode** data_list, int initial_size) {
     tree_list = new BinaryTreeNode*[tree_capacity /* = 1 */];
     tree_root = tree_list[0] = new BinaryTreeNode(data_list[0]);
-    int _;
     for (int i = 1; i < initial_size; i++) {
-        tree_append(data_list[i], _);
+        tree_append(data_list[i]);
     }
     update_base = nullptr;
 }
@@ -32,6 +31,9 @@ BinaryTree::~BinaryTree() {
         delete tree_list[i];
     }
     delete[] tree_list;
+}
+int BinaryTree::get_depth() const {
+    return depth;
 }
 
 BinaryTreeNode* BinaryTree::tree_list_append(DataNode* data) {
@@ -48,12 +50,13 @@ BinaryTreeNode* BinaryTree::tree_list_append(DataNode* data) {
     return tree_list[tree_size++];
 }
 
-bool BinaryTree::tree_append(DataNode* data, int& depth) {
+bool BinaryTree::tree_append(DataNode* data) {
     BinaryTreeNode* cur = tree_root;
     int key = data->key;
-    depth = 0;
+    int depth = 1;
     while (true) {
         depth++;
+        if (depth > this->depth) this->depth = depth;
         if (key == cur->data->key) {
             return 1;
         }
@@ -66,7 +69,7 @@ bool BinaryTree::tree_append(DataNode* data, int& depth) {
     }
 }
 
-bool BinaryTree::insert(DataNode* data, int& depth, bool use_update_base) {
+bool BinaryTree::insert(DataNode* data, bool use_update_base) {
     if (use_update_base) {
 #ifdef DEBUG
         assert(update_base != nullptr);
@@ -76,12 +79,12 @@ bool BinaryTree::insert(DataNode* data, int& depth, bool use_update_base) {
         update_base = nullptr;
         return 0;
     }
-    return tree_append(data, depth);
+    return tree_append(data);
 }
 
 bool BinaryTree::operation(int key, int& value, int type) {
     BinaryTreeNode* cur = tree_root;
-    int depth = 0;
+    int depth = 1;
     bool k = 0;
     while (true) {
         depth++;
@@ -100,6 +103,13 @@ bool BinaryTree::operation(int key, int& value, int type) {
             assert(update_base == nullptr);
 #endif  // DEBUG
             if (type == 2) update_base = cur;
+            if (depth > this->depth) {
+#ifdef DEBUG_DEPTH
+                cerr << "[BinaryTree]: depth: " << depth << "this->depth: " << this->depth << endl;
+                assert(depth == this->depth + 1);
+                this->depth = depth;
+#endif  // DEBUG_DEPTH
+            }
             return 0;
         }
         cur = cur->child[k];
@@ -146,11 +156,11 @@ void BinaryTree::show() {
             }
         }
     }
-    for (int i = 1; i < tree_size; i++) cout << layer[i]->data->key << " ";
+    for (int i = 0; i < tree_size; i++) cout << layer[i]->data->key << " ";
     cout << endl;
-    for (int i = 1; i < tree_size; i++) cout << is_child0[layer[i]->data->id] << " ";
+    for (int i = 0; i < tree_size; i++) cout << is_child0[layer[i]->data->id] << " ";
     cout << endl;
-    for (int i = 1; i < tree_size; i++) cout << !(layer[i]->child[0] || layer[i]->child[1]) << " ";
+    for (int i = 0; i < tree_size; i++) cout << !(layer[i]->child[0] || layer[i]->child[1]) << " ";
     cout << endl;
     delete[] layer;
 }

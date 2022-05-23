@@ -3,3 +3,4 @@ data.backup/*
 bin/*.o
 main
 diff*.txt
+.vscode

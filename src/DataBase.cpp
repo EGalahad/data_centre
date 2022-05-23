@@ -1,77 +1,119 @@
 #include "DataBase.h"
+
+#include <iostream>
+using std::cout;
+using std::endl;
 /*****************************
  * public API for database
  *****************************/
 
-DataBase::DataBase(int com_node, int sto_node, int cache_size)
-    : com_node(com_node), sto_node(sto_node), cache_size(cache_size) {
-    computers = (ComputeNode **)malloc(com_node * sizeof(ComputeNode *));
-    disks = (StoreNode **)malloc(sto_node * sizeof(StoreNode *));
-// computers = new ComputeNode*[com_node];
-#ifdef DEBUG
-    cout << "initializing database" << endl;
-#endif  // DEBUG
-    for (int id = 0; id < com_node; id++) {
+DataBase::DataBase(int num_compute_node, int num_store_node, int cache_size)
+    : num_compute_node(num_compute_node), num_store_node(num_store_node), cache_size(cache_size) {
+    computers = new ComputeNode *[num_compute_node];
+    disks = new StoreNode *[num_store_node];
+    for (int id = 0; id < num_compute_node; id++) {
         computers[id] = new ComputeNode(id, cache_size);
     }
-    for (int id = 0; id < sto_node; id++) {
+    for (int id = 0; id < num_store_node; id++) {
         disks[id] = new StoreNode(id);
     }
 }
 
 int DataBase::Insert(int key, int value, int time_stamp, int id) {
     auto worker = (id == -1) ? get_min_ops() : computers[id];
-    if (worker->time_stamp == time_stamp) return -1;
-    worker->ops++, worker->time_stamp = time_stamp;
-#ifdef DEBUG
-    cout << "ops: ";
-    for (int i = 0; i < com_node; i++) {
-        cout << computers[i]->ops << " ";
+    if (worker->time_stamp == time_stamp) {
+#ifdef DEBUG_REJECT
+        cout << "[DataBase.insert]: operation rejected. worker #" << worker->id_compute_node
+             << " timestamp = " << worker->time_stamp
+             << " now time stamp = " << time_stamp << endl;
+#endif  // DEBUG_REJECT
+        return -1;
     }
-    cout << endl;
-#endif  // DEBUG
-    bool exist = worker->insert(key, value, disks[key % sto_node], time_stamp);
+    worker->ops++, worker->time_stamp = time_stamp;
+    bool exist = worker->insert(key, value, disks[key % num_store_node], time_stamp);
     return exist;
 }
 int DataBase::Query(int key, int &value, int time_stamp, int id) {
     auto worker = (id == -1) ? get_min_ops() : computers[id];
-    if (worker->time_stamp == time_stamp) return -1;
+    if (worker->time_stamp == time_stamp) {
+#ifdef DEBUG_REJECT
+        cout << "[DataBase.query]: operation rejected. worker #" << worker->id_compute_node
+             << " timestamp = " << worker->time_stamp
+             << " now time stamp = " << time_stamp << endl;
+#endif  // DEBUG_REJECT
+        return -1;
+    }
     worker->ops++, worker->time_stamp = time_stamp;
-    bool exist = worker->query(key, value, disks[key % sto_node], time_stamp);
+    bool exist = worker->query(key, value, disks[key % num_store_node], time_stamp);
     return exist;
 }
 int DataBase::Update(int key, int &value, int time_stamp, int id) {
     auto worker = (id == -1) ? get_min_ops() : computers[id];
-#ifdef DEBUG_UPDATE
-    if (time_stamp == 1044) {
-        for (int i = 0; i < com_node; i++) {
-            cout <<  computers[i]->ops << " ";
+    if (worker->time_stamp == time_stamp) {
+#ifdef DEBUG_REJECT
+        cout << "[DataBase.getnode]: operation rejected. worker #" << worker->id_compute_node
+             << " timestamp = " << worker->time_stamp
+             << " now time stamp = " << time_stamp << endl;
+        for (int i = 0; i < num_compute_node; i++) {
+            cout << "\t\t" << i;
         }
-        cout << endl << "[debug] chosen worker id: " << worker->id << "\tworker timestamp: " << worker->time_stamp << endl;
+        cout << endl;
+        cout << "\ttime_stamp of computers" << endl;
+        for (int i = 0; i < num_compute_node; i++) {
+            cout << "\t" << computers[i]->time_stamp;
+        }
+        cout << endl;
+        cout << "\tops of computers" << endl;
+        for (int i = 0; i < num_compute_node; i++) {
+            cout << "\t" << computers[i]->ops << "\t";
+        }
+        cout << endl;
+#endif  // DEBUG_REJECT
+        return -1;
     }
-#endif  // DEBUG_UPDATE
-    if (worker->time_stamp == time_stamp) return -1;
     worker->ops++, worker->time_stamp = time_stamp;
     int new_value = value;
-    bool exist = worker->update(key, value, disks[key % sto_node], time_stamp);
-    if (exist) BroadCast_UpdateCache(key, new_value, time_stamp);
+    bool exist = worker->update(key, value, disks[key % num_store_node], time_stamp);
+    if (exist) broadcast_update_cache(key, new_value, time_stamp);
     return exist;
 }
 
 int DataBase::GetNode(int store_id, int time_stamp, int id) {
     auto worker = (id == -1) ? get_min_ops() : computers[id];
-    if (worker->time_stamp == time_stamp) return -1;
+    if (worker->time_stamp == time_stamp) {
+#ifdef DEBUG_REJECT
+        cout << "[DataBase.getnode]: operation rejected. worker #" << worker->id_compute_node
+             << " timestamp = " << worker->time_stamp
+             << " now time stamp = " << time_stamp << endl;
+        for (int i = 0; i < num_compute_node; i++) {
+            cout << "\t\t" << i;
+        }
+        cout << endl;
+        cout << "\ttime_stamp of computers" << endl;
+        for (int i = 0; i < num_compute_node; i++) {
+            cout << "\t" << computers[i]->time_stamp;
+        }
+        cout << endl;
+        cout << "\tops of computers" << endl;
+        for (int i = 0; i < num_compute_node; i++) {
+            cout << "\t" << computers[i]->ops << "\t";
+        }
+        cout << endl;
+#endif  // DEBUG_REJECT
+        return -1;
+    }
     worker->ops++, worker->time_stamp = time_stamp;
     worker->show(disks[store_id], time_stamp);
+    return 0;
 }
 
 /*****************************
  * private API for database
  *****************************/
 
-void DataBase::BroadCast_UpdateCache(int key, int value, int time_stamp) {
-    for (int i = 0; i < com_node; i++) {
-        auto worker = computers[com_node - 1 - i];
+void DataBase::broadcast_update_cache(int key, int value, int time_stamp) {
+    for (int i = 0; i < num_compute_node; i++) {
+        auto worker = computers[num_compute_node - 1 - i];
         bool exist = worker->update_cache(key, value, time_stamp);
         if (exist) worker->time_stamp = time_stamp;
     }
@@ -79,21 +121,21 @@ void DataBase::BroadCast_UpdateCache(int key, int value, int time_stamp) {
 
 ComputeNode *DataBase::get_min_ops() {
     int index = 0, min_ops = computers[0]->ops, min_index = 0;
-    while (index < com_node) {
+    while (index < num_compute_node) {
         if (computers[index]->ops < min_ops) min_ops = computers[index]->ops, min_index = index;
         index++;
     }
     return computers[min_index];
 }
 DataBase::~DataBase() {
-    for (int i = 0; i < com_node; i++) {
+    for (int i = 0; i < num_compute_node; i++) {
         delete computers[i];
         // computers[i]->~ComputeNode();
     }
-    for (int i = 0; i < sto_node; i++) {
+    for (int i = 0; i < num_store_node; i++) {
         delete disks[i];
         // disks[i]->~StoreNode();
     }
-    free(computers);
-    free(disks);
+    delete[] computers;
+    delete[] disks;
 }

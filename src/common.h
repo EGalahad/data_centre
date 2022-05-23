@@ -1,12 +1,16 @@
 #pragma once
 
-#include <iostream>
-using std::cout;
-using std::endl;
-#include <utility>
-typedef std::pair<int, int> Pair;
-
 // #define DEBUG
+
 // #define DEBUG_BST
-// #define DEBUG_TRIE_SHOW
-#define DEBUG_UPDATE
+// #define DEBUG_TRIE
+// #define DEBUG_UPDATE
+
+// #define DEBUG_REJECT
+// #define DEBUG_CACHE
+// #define DEBUG_TRANS
+// #define DEBUG_DEPTH
+
+#ifdef DEBUG_DEPTH
+#include <cassert>
+#endif  // DEBUG

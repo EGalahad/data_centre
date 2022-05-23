@@ -1,17 +1,19 @@
 #include "BinaryTrie.h"
-using std::cerr;
 
-BinaryTrieNode::BinaryTrieNode(int id, bool key /* = 0 */, int depth, /* = 0 */ DataNode* data /* = nullptr */)
-    : id(id), key(key), depth(depth), data(data) {
+#include <iostream>
+using std::cerr;
+using std::cout;
+using std::endl;
+#include <queue>
+
+BinaryTrieNode::BinaryTrieNode(int id, bool key /* = 0 */, DataNode* data /* = nullptr */)
+    : id(id), key(key), data(data) {
     for (int i = 0; i < 2; i++) {
         child[i] = nullptr;
     }
 }
 
 BinaryTrie::BinaryTrie(DataNode** data_list, int initial_size) {
-#ifdef DEBUG
-    cout << "constructing binary trie" << endl;
-#endif  // DEBUG
     trie_list = new BinaryTrieNode*[trie_capacity /* = 1 */];
     // use first node in list as the root, whose key does not matter
     trie_list[0] = new BinaryTrieNode(0);
@@ -21,7 +23,7 @@ BinaryTrie::BinaryTrie(DataNode** data_list, int initial_size) {
     }
 }
 
-BinaryTrieNode* BinaryTrie::trie_list_append(bool key, int depth, DataNode* data) {
+BinaryTrieNode* BinaryTrie::trie_list_append(bool key, DataNode* data) {
     if (trie_size == trie_capacity) {
         trie_capacity <<= 1;
         BinaryTrieNode** new_trie_list = new BinaryTrieNode*[trie_capacity];
@@ -31,7 +33,7 @@ BinaryTrieNode* BinaryTrie::trie_list_append(bool key, int depth, DataNode* data
         delete[] trie_list;
         trie_list = new_trie_list;
     }
-    trie_list[trie_size] = new BinaryTrieNode(trie_size, key, depth, data);
+    trie_list[trie_size] = new BinaryTrieNode(trie_size, key, data);
     return trie_list[trie_size++];
 }
 
@@ -42,7 +44,7 @@ bool BinaryTrie::trie_append(DataNode* data) {
     for (int i = 31; i >= 0; i--) {
         k = key >> i & 1, depth++;
         if (!cur->child[k]) {
-            cur->child[k] = trie_list_append(k, depth, nullptr);
+            cur->child[k] = trie_list_append(k, nullptr);
         }
         cur = cur->child[k];
     }
@@ -70,7 +72,7 @@ bool BinaryTrie::operation(int key, int& value, int type) {
         k = key >> i & 1, depth++;
         if (!cur->child[k]) {
             if (type == 1) return 0;
-            cur->child[k] = trie_list_append(k, depth, nullptr);
+            cur->child[k] = trie_list_append(k, nullptr);
         }
         cur = cur->child[k];
     }
@@ -91,15 +93,9 @@ void BinaryTrie::show() {
     cout << "Trie" << endl;
     BinaryTrieNode** layer = new BinaryTrieNode*[trie_size];
     {
-#ifdef DEBUG_TRIE_SHOW
-        cerr << "showing bfs, pushing root to Q" << endl;
-#endif  // DEBUG_TRIE_SHOW
         int cnt = 0;
         std::queue<BinaryTrieNode*> Q;
         Q.push(trie_root);
-#ifdef DEBUG_TRIE_SHOW
-        cerr << "root pushed in" << endl;
-#endif  // DEBUG_TRIE_SHOW
         while (!Q.empty()) {
             BinaryTrieNode* top = Q.front();
             Q.pop();

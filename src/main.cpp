@@ -1,4 +1,5 @@
 #include <iostream>
+using std::cerr;
 using std::cin;
 using std::cout;
 using std::endl;
@@ -14,16 +15,22 @@ int main(int argc, char const* argv[]) {
     int m, n, k, N;
     cin >> m >> n >> k >> N;
     DataBase base(m, n, k);
-#ifdef DEBUG
-    cout << "init data base in main.cpp over" << endl;
-#endif  // DEBUG
     string line, token;
     string operation;
     int key, value, computer_id, time_stamp = 0;
     int res;
     while (N--) {
-        while (getline(cin, line), line.empty())
-            ;
+        while (getline(cin, line), line.empty()) {
+            static int cnt = 0;
+            cnt++;
+            if (cnt > 100) return 0;
+        }
+        if (line.empty()) {
+#ifdef DEBUG
+            cerr << "[main]: this line is empty!" << endl;
+#endif  // DEBUG
+            return 0;
+        }
         std::stringstream X(line);
         std::getline(X, token, ' '), operation = token;
         if (operation == "Insert") {

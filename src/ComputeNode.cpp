@@ -1,12 +1,14 @@
 #include "ComputeNode.h"
+#include <iostream>
+using std::cout;
+using std::endl;
+#include <utility>
+typedef std::pair<int, int> Pair;
 /*****************************
  * public API for compute node
  *****************************/
 
-ComputeNode::ComputeNode(int id, int cache_size) : id(id), k(cache_size) {
-#ifdef DEBUG
-    cout << "initializing compute node #" << id << endl;
-#endif  // DEBUG
+ComputeNode::ComputeNode(int id_compute_node, int cache_size) : id_compute_node(id_compute_node), k(cache_size) {
     cache = new Pair[k];
     cache_time = new int[k];
     for (int i = 0; i < k; i++) {
@@ -15,14 +17,14 @@ ComputeNode::ComputeNode(int id, int cache_size) : id(id), k(cache_size) {
 }
 
 bool ComputeNode::insert(int key, int value, StoreNode* sto, int time_stamp) {
-    cout << "Visiting Computing node " << id << " at time " << time_stamp << endl;
+    cout << "Visiting Computing node " << id_compute_node << " at time " << time_stamp << endl;
     bool exist = sto->insert(key, value, time_stamp);
     if (!exist) cache_insert(key, value, time_stamp);
     return exist;
 }
 
 bool ComputeNode::query(int key, int& value, StoreNode* sto, int time_stamp) {
-    cout << "Visiting Computing node " << id << " at time " << time_stamp << endl;
+    cout << "Visiting Computing node " << id_compute_node << " at time " << time_stamp << endl;
     int _;
     if (cache_query(key, value, _, time_stamp)) {
         if (value == -1) return 0;
@@ -35,25 +37,25 @@ bool ComputeNode::query(int key, int& value, StoreNode* sto, int time_stamp) {
 }
 
 bool ComputeNode::update(int key, int& value, StoreNode* sto, int time_stamp) {
-    cout << "Visiting Computing node " << id << " at time " << time_stamp << endl;
+    cout << "Visiting Computing node " << id_compute_node << " at time " << time_stamp << endl;
     return sto->update(key, value, time_stamp);
 }
 
 bool ComputeNode::update_cache(int key, int value, int time_stamp) {
     int pos, _;
     if (cache_query(key, _, pos, time_stamp)) {
-        cout << "Visiting Computing node " << id << " at time " << time_stamp << endl;
+        cout << "Visiting Computing node " << id_compute_node << " at time " << time_stamp << endl;
         cache[pos].second = value;
-#ifdef DEBUG_UPDATE
-        cout << "[update cache] [compute node" << id << "]";
-#endif  // DEBUG_UPDATE
+#ifdef DEBUG_CACHE
+        cout << "[ComputeNode.update_cache]: compute node #" << id_compute_node << endl;
+#endif  // DEBUG_CACHE
         return 1;
     }
     return 0;
 }
 
 void ComputeNode::show(StoreNode* sto, int time_stamp) {
-    cout << "Visiting Computing node " << id << " at time " << time_stamp << endl;
+    cout << "Visiting Computing node " << id_compute_node << " at time " << time_stamp << endl;
     sto->show(time_stamp);
 }
 

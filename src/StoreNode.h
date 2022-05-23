@@ -1,8 +1,8 @@
 #pragma once
 #include "BinaryTrie.h"
+#include "BinaryTree.h"
 #include "DataNode.h"
 #include "common.h"
-#include <queue>
 
 class StoreNode {
    public:
@@ -19,18 +19,18 @@ class StoreNode {
     void show(int time_stamp);
 
    private:
-    int id;
+    int id_store_node;
 
     // data structrure type
     // 0: array, 1:BST, 2: trie
-    int type = 0;
+    int type_store_structure = 0;
 
     int size = 0, capacity = 1;
     DataNode** data_list;
 
     DataNode* data_list_append(int key, int value);
 
-    void transform(int depth);
+    void transform();
 
     /*****************
      * array structure
@@ -50,10 +50,8 @@ class StoreNode {
     bool bst_operation(int key, int& value, int type);
     void bst_show();
 
-    DataNode* bst_root;
-
+    BinaryTree* tree;
     void bst_init();
-    void bst_append(DataNode* node);
 
     /*****************
      * trie structure
