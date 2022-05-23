@@ -6,13 +6,12 @@ CC_OPTIONS := -g -fsanitize=address
 
 .PHONY: check diff
 
+number := 3
 
-check:
-	./main < ./data/input2 > ./data/output2
-
-diff:
-	diff ./data/output2 ../me/data/output2 | grep '^[1-9]' > diff.txt
-	cat diff.txt
+check%:
+	./main < ./data/input$(subst check,,$@) > ./data/output$(subst check,,$@)
+	diff ./data/output$(subst check,,$@) ../me/data/output$(subst check,,$@) | grep '^[1-9]' > diff$(subst check,,$@).txt
+	cat diff$(subst check,,$@).txt
 
 all: main
 
