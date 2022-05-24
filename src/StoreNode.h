@@ -1,8 +1,9 @@
 #pragma once
-#include "BinaryTrie.h"
-#include "BinaryTree.h"
-#include "DataNode.h"
 #include "common.h"
+
+class DataNode;
+class BinaryTree;
+class BinaryTrie;
 
 class StoreNode {
    public:

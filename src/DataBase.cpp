@@ -3,6 +3,9 @@
 #include <iostream>
 using std::cout;
 using std::endl;
+
+#include "ComputeNode.h"
+#include "StoreNode.h"
 /*****************************
  * public API for database
  *****************************/

@@ -1,9 +1,13 @@
 #include "ComputeNode.h"
+
 #include <iostream>
 using std::cout;
 using std::endl;
+
 #include <utility>
 typedef std::pair<int, int> Pair;
+
+#include "StoreNode.h"
 /*****************************
  * public API for compute node
  *****************************/

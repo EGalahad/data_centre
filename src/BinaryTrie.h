@@ -1,6 +1,6 @@
 #pragma once
 #include "common.h"
-#include "DataNode.h"
+class DataNode;
 
 // nodes in the trie, with leaf nodes pointing to the data nodes
 class BinaryTrieNode {

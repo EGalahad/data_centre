@@ -2,8 +2,8 @@
 #include <utility>
 typedef std::pair<int, int> Pair;
 
-#include "StoreNode.h"
 #include "common.h"
+class StoreNode;
 
 class ComputeNode {
    public:

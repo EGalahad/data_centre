@@ -1,7 +1,7 @@
 #pragma once
-#include "ComputeNode.h"
-#include "StoreNode.h"
 #include "common.h"
+class ComputeNode;
+class StoreNode;
 
 class DataBase {
    public:

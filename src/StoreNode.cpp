@@ -1,6 +1,10 @@
 #include "StoreNode.h"
 
 #include <iostream>
+
+#include "BinaryTree.h"
+#include "BinaryTrie.h"
+#include "DataNode.h"
 using std::cerr;
 using std::cout;
 using std::endl;
@@ -55,7 +59,7 @@ void StoreNode::show(int time_stamp) {
 }
 
 StoreNode::~StoreNode() {
-   for (int i = 0; i < size; i++) {
+    for (int i = 0; i < size; i++) {
         delete data_list[i];
     }
     delete[] data_list;

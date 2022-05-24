@@ -1,6 +1,7 @@
 #pragma once
-#include "DataNode.h"
 #include "common.h"
+
+class DataNode;
 
 class BinaryTreeNode {
     DataNode* data;

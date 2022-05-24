@@ -1,4 +1,5 @@
 #include "BinaryTrie.h"
+#include "DataNode.h"
 
 #include <iostream>
 using std::cerr;
